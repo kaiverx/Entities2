@@ -1,0 +1,24 @@
+@startuml
+class StarWars.Entities.Sith {
+- String lightsaberColor
+- int forceLevel
+- boolean isMaster
++ String getLightsaberColor()
++ int getForceLevel()
++ boolean isMaster()
++ String toString()
++ String takeCare()
++ void setForceLevel(int)
++ void setLightsaberColor(String)
++ void setIsMaster(boolean)
++ void setModelType(String)
++ void setBatteryLevel(int)
++ void setCloneNumber(String)
++ void setFunction(String)
+}
+
+
+
+
+StarWars.Entities.Entity <|-- StarWars.Entities.Sith
+@enduml

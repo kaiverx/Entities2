@@ -1,0 +1,6 @@
+@startuml
+class StarWars.Main {
++ {static} void main(String[])
+}
+
+@enduml

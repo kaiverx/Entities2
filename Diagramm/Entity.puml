@@ -1,0 +1,33 @@
+@startuml
+abstract class StarWars.Entities.Entity {
+- String name
+- String type
+- String fraction
+- int age
+- String planet
+- int powerLevel
++ String getName()
++ String getType()
++ String getFraction()
++ int getAge()
++ String getPlanet()
++ int getPowerLevel()
++ void setAge(int)
++ void setPowerLevel(int)
++ void setPlanet(String)
++ void setName(String)
++ void setType(String)
++ void setFraction(String)
++ {abstract}String takeCare()
++ String toString()
++ {abstract}void setBatteryLevel(int)
++ {abstract}void setIsMaster(boolean)
++ {abstract}void setModelType(String)
++ {abstract}void setLightsaberColor(String)
++ {abstract}void setForceLevel(int)
++ {abstract}void setCloneNumber(String)
++ {abstract}void setFunction(String)
+}
+
+
+@enduml

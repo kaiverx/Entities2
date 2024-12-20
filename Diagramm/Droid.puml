@@ -1,0 +1,24 @@
+@startuml
+class StarWars.Entities.Droid {
+- String modelType
+- String function
+- int batteryLevel
++ String getModelType()
++ String getFunction()
++ int getBatteryLevel()
++ String toString()
++ String takeCare()
++ void setBatteryLevel(int)
++ void setModelType(String)
++ void setFunction(String)
++ void setLightsaberColor(String)
++ void setIsMaster(boolean)
++ void setForceLevel(int)
++ void setCloneNumber(String)
+}
+
+
+
+
+StarWars.Entities.Entity <|-- StarWars.Entities.Droid
+@enduml

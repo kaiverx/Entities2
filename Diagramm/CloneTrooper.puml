@@ -1,0 +1,20 @@
+@startuml
+class StarWars.Entities.CloneTrooper {
+- String cloneNumber
++ String getCloneNumber()
++ String toString()
++ String takeCare()
++ void setCloneNumber(String)
++ void setLightsaberColor(String)
++ void setIsMaster(boolean)
++ void setModelType(String)
++ void setBatteryLevel(int)
++ void setForceLevel(int)
++ void setFunction(String)
+}
+
+
+
+
+StarWars.Entities.Entity <|-- StarWars.Entities.CloneTrooper
+@enduml

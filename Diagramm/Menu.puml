@@ -1,0 +1,30 @@
+@startuml
+class StarWars.Menu {
+- {static} Scanner scanner
+- {static} ArrayList<Entity> entities
++ {static} void menu()
+- {static} void showMenu()
+- {static} int getValidIntegerInput()
+- {static} void showAllEntities()
+- {static} void addEntity()
+- {static} Jedi createJedi()
+- {static} Sith createSith()
+- {static} CloneTrooper createClone()
+- {static} Droid createDroid()
+- {static} void updateEntityInfo()
+- {static} void removeEntity()
+- {static} Entity findEntityByName(String)
+- {static} void interactWithEntity()
++ {static} void main(String[])
+- {static} int getValidIntInput(String)
+- {static} boolean getValidBooleanInput(String)
+- {static} void writeEntityToFile(Entity,String)
+- {static} void loadEntitiesFromFile(String)
+- {static} boolean isNameExists(String)
+- {static} void showEntitiesByParameters()
+- {static} boolean isValidEntityType(String)
+- {static} boolean fillEntityData(Entity,String)
+}
+
+
+@enduml

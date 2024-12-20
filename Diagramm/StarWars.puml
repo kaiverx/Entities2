@@ -1,0 +1,13 @@
+@startuml
+!include CloneTrooper.puml
+!include Droid.puml
+!include Jedi.puml
+!include Sith.puml
+!include Entity.puml
+!include Main.puml
+!include Menu.puml
+
+
+Main --> Menu
+Menu "1" o-- "*" Entity
+@enduml

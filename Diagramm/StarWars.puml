@@ -6,8 +6,9 @@
 !include Entity.puml
 !include Main.puml
 !include Menu.puml
+!include EntityManager.puml
 
-
-Main --> Menu
-Menu "1" o-- "*" Entity
+Main --> EntityManager
+EntityManager "1" *-- "*" Entity
+EntityManager --> Menu
 @enduml

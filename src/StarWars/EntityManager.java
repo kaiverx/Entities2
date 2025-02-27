@@ -7,7 +7,6 @@ import StarWars.Entities.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class EntityManager {
     private static Scanner scanner = new Scanner(System.in);
     private static ArrayList<Entity> entities = new ArrayList<>();
@@ -35,6 +34,10 @@ public class EntityManager {
                 System.out.println(entity.toString());
             }
         }
+    }
+
+    public static List<Entity> getEntities() {
+        return new ArrayList<>(entities); // Возвращаем копию списка
     }
     // Добавление сущности
     public static void addEntity() {

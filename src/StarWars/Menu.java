@@ -1,11 +1,6 @@
 package StarWars;
 
 import StarWars.Entities.*;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
 import java.util.Scanner;
 
 public class Menu {

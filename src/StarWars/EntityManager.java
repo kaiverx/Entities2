@@ -1,5 +1,11 @@
 package StarWars;
 
+
+import javax.swing.*;
+import java.awt.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.InputMismatchException;
 import java.util.*;
@@ -11,98 +17,79 @@ public class EntityManager {
     private static Scanner scanner = new Scanner(System.in);
     private static ArrayList<Entity> entities = new ArrayList<>();
 
-    public static void menu() {
-        // Создание персонажей
-        Jedi obiWan = new Jedi("Оби-Ван Кеноби", "Республика", 57, "Стижон", 9000, "Синий", 95, true);
-        Sith darthVader = new Sith("Дарт Вейдер", "Империя", 46, "Татуин", 9500, "Тёмный разряд", 95, true);
-        CloneTrooper rex = new CloneTrooper("Капитан Рекс", "Республика", 12, "Эндор", 2000, "CT-7567");
-        Droid r2d2 = new Droid("R2-D2", "Республика", 66, "Набу", 50, "Астромех", "Поддержка", 100);
 
-        // Добавление персонажей в список
-        entities.add(obiWan);
-        entities.add(darthVader);
-        entities.add(rex);
-        entities.add(r2d2);
-        Menu.showMenu();
-    }
+//    public static void menu() {
+//        // Создание персонажей
+//        Jedi obiWan = new Jedi("Оби-Ван Кеноби", "Республика", 57, "Стижон", 9000, "Синий", 95, true);
+//        Sith darthVader = new Sith("Дарт Вейдер", "Империя", 46, "Татуин", 9500, "Тёмный разряд", 95, true);
+//        CloneTrooper rex = new CloneTrooper("Капитан Рекс", "Республика", 12, "Эндор", 2000, "CT-7567");
+//        Droid r2d2 = new Droid("R2-D2", "Республика", 66, "Набу", 50, "Астромех", "Поддержка", 100);
+//
+//        // Добавление персонажей в список
+//        entities.add(obiWan);
+//        entities.add(darthVader);
+//        entities.add(rex);
+//        entities.add(r2d2);
+//        Menu.showMenu();
+//    }
 
-    public static void showAllEntities() {
-        if (entities.isEmpty()) {
-            System.out.println("Нет персонажей в списке.");
-        } else {
-            for (Entity entity : entities) {
-                System.out.println(entity.toString());
-            }
-        }
-    }
+//    public static void showAllEntities() {
+//        if (entities.isEmpty()) {
+//            System.out.println("Нет персонажей в списке.");
+//        } else {
+//            for (Entity entity : entities) {
+//                System.out.println(entity.toString());
+//            }
+//        }
+//    }
 
     public static List<Entity> getEntities() {
         return new ArrayList<>(entities); // Возвращаем копию списка
     }
-    // Добавление сущности
+
     public static void addEntity() {
-        System.out.println("Выберите тип персонажа которого хотите добавить");
-        System.out.println("1. Джедай");
-        System.out.println("2. Ситх");
-        System.out.println("3. Клон");
-        System.out.println("4. Дроид");
-        System.out.println("5. Вернуться в главное меню");
-        System.out.println("Введите нужный пункт:");
+        // Создаём модальное окно для выбора
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Выберите тип персонажа, которого хотите добавить");
+        dialog.setSize(400, 300);
+        dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        dialog.setLocationRelativeTo(null); // Окно будет по центру экрана
+        dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL); // Устанавливаем модальность
+        dialog.setResizable(false);
 
-        int type = getValidIntegerInput();
-        String entityType = "";
-        Entity newEntity = null;
-        switch (type) {
-            case 1:
-                newEntity = createJedi();
-                if (isNameExists(newEntity.getName())){
-                    entities.remove(newEntity);
-                }
-                else{
-                    entityType = "Jedi";
-                }
-                break;
-            case 2:
-                newEntity = createSith();
-                if (isNameExists(newEntity.getName())){
-                    entities.remove(newEntity);
-                }
-                else{
-                    entityType = "Sith";
-                }
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Вертикальное расположение кнопок
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Отступы
 
-                break;
-            case 3:
-                newEntity = createClone();
-                if (isNameExists(newEntity.getName())){
-                    entities.remove(newEntity);
-                }
-                else{
-                    entityType = "Clone";
-                }
+        // Добавляем кнопки
+        panel.add(createButton("Джедай", e -> { dialog.dispose();createJedi();  }));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createButton("Ситх", e -> {createSith(); dialog.dispose();}));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createButton("Клон", e -> {createClone(); dialog.dispose();}));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createButton("Дроид", e -> {createDroid(); dialog.dispose();}));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createButton("Вернуться в главное меню", e -> dialog.dispose()));
 
-                break;
-            case 4:
-                newEntity = createDroid();
-                if (isNameExists(newEntity.getName())){
-                    entities.remove(newEntity);
-                }
-                else{
-                    entityType = "Droid";
-                }
-            case 5:
+        // Добавляем панель в окно
+        dialog.add(panel, BorderLayout.CENTER); // Центрируем панель в окне
 
-                break;
-            default:
-                System.out.println("Неверный выбор.");
-        }
+        // Обновляем окно, чтобы кнопки отобразились
+        dialog.revalidate();
+        dialog.repaint();
 
-        if (newEntity != null) {
-            entities.add(newEntity);
-            System.out.println(newEntity.getName() + " добавлен(а).");
-            // Запись персонажа в файл
-            writeEntityToFile(newEntity, entityType);
-        }
+        // Теперь показываем окно
+        dialog.setVisible(true);
+    }
+
+    private static JButton createButton(String text, ActionListener action) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(new Dimension(200, 50)); // Фиксированный размер кнопки
+        button.setMaximumSize(new Dimension(200, 50)); // Ограничиваем максимальный размер
+        button.setAlignmentX(Component.CENTER_ALIGNMENT); // Выравнивание кнопки по центру
+        button.addActionListener(action);
+        return button;
     }
 
     private static void writeEntityToFile(Entity entity, String entityType) {
@@ -277,7 +264,6 @@ public class EntityManager {
         return false; // Данные ещё не завершены
     }
 
-    // Удаление сущности
     public static void removeEntity(String input) {
         if (input.equalsIgnoreCase("jedi") ||
                 input.equalsIgnoreCase("sith") ||
@@ -318,7 +304,6 @@ public class EntityManager {
         }
     }
 
-    // Метод взаимодействия
     public static void interactWithEntity(String name) {
         Entity entity = findEntityByName(name);
         if (entity != null) {
@@ -368,144 +353,380 @@ public class EntityManager {
     }
 
     private static Jedi createJedi() {
+        // Используем JDialog для модального окна
+        JDialog frame = new JDialog();
+        frame.setTitle("Форма ввода данных о Джедае");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
-        scanner.nextLine(); // Очистка буфера перед вводом строк
-        System.out.println("Введите имя Джедая: ");
-        String name = scanner.nextLine();
+        // Устанавливаем модальность
+        frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 
-        System.out.println("Введите фракцию Джедая: ");
-        String fraction = scanner.nextLine();
+        // Запрещаем изменение размера окна
+        frame.setResizable(false);
 
-        int age = getValidIntInput("Введите возраст Джедая: ");
-        scanner.nextLine(); // Очистка буфера
+        // Создаем панель с GridLayout для ввода данных
+        JPanel form = new JPanel();
+        form.setLayout(new GridLayout(9, 2, 10, 10)); // Добавим отступы для элементов
 
-        System.out.println("Введите планету Джедая: ");
-        String planet = scanner.nextLine();
+        JTextField nameField = new JTextField();
+        JTextField fractionField = new JTextField();
+        JTextField planetField = new JTextField();
+        JTextField lightsaberColorField = new JTextField();
+        JTextField forceLevelField = new JTextField();
+        JTextField powerLevelField = new JTextField();
+        JTextField ageField = new JTextField();
+        JCheckBox isMasterCheckBox = new JCheckBox("Гранд-мастер");
 
-        int powerLevel = getValidIntInput("Введите уровень силы Джедая: ");
-        scanner.nextLine(); // Очистка буфера
+        // Устанавливаем предпочтительный размер для полей ввода
+        Dimension fieldSize = new Dimension(100, 1);  // Ширина 200, высота 30
+        nameField.setPreferredSize(fieldSize);
+        fractionField.setPreferredSize(fieldSize);
+        planetField.setPreferredSize(fieldSize);
+        lightsaberColorField.setPreferredSize(fieldSize);
+        forceLevelField.setPreferredSize(fieldSize);
+        powerLevelField.setPreferredSize(fieldSize);
+        ageField.setPreferredSize(fieldSize);
 
-        System.out.println("Введите цвет светового меча Джедая: ");
-        String lightsaberColor = scanner.nextLine();
+        JButton submitButton = new JButton("Создать Джедая");
 
-        int forceLevel = getValidIntInput("Введите уровень владения силой Джедая: ");
+        // Добавляем компоненты на панель
+        form.add(new JLabel("Имя Джедая:"));
+        form.add(nameField);
+        form.add(new JLabel("Фракция Джедая:"));
+        form.add(fractionField);
+        form.add(new JLabel("Возраст Джедая:"));
+        form.add(ageField);
+        form.add(new JLabel("Планета Джедая:"));
+        form.add(planetField);
+        form.add(new JLabel("Уровень силы Джедая:"));
+        form.add(powerLevelField);
+        form.add(new JLabel("Цвет светового меча:"));
+        form.add(lightsaberColorField);
+        form.add(new JLabel("Уровень владения силой:"));
+        form.add(forceLevelField);
+        form.add(new JLabel("Гранд-мастер?"));
+        form.add(isMasterCheckBox);
+        form.add(submitButton);
 
-        boolean isMaster = getValidBooleanInput("Является ли Джедай гранд-мастером? (true/false): ");
+        // Добавляем панель с формой на окно
+        frame.add(form, BorderLayout.CENTER);
 
-        if (!isNameExists(name)){
-            return new Jedi(name, fraction, age, planet, (int) powerLevel, lightsaberColor, forceLevel, isMaster);
+        // Обработчик события для кнопки
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Проверка введенных данных
+                String name = nameField.getText();
+                String fraction = fractionField.getText();
+                String planet = planetField.getText();
+                String lightsaberColor = lightsaberColorField.getText();
+                int forceLevel = getValidIntInput(forceLevelField.getText(), "Уровень владения силой");
+                int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
+                int age = getValidIntInput(ageField.getText(), "Возраст");
+
+                boolean isMaster = isMasterCheckBox.isSelected();
+
+                if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || lightsaberColor.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Пожалуйста, заполните все поля!");
+                } else {
+                    Jedi newJedi = new Jedi(name, fraction, age, planet, powerLevel, lightsaberColor, forceLevel, isMaster);
+                    // Здесь можно добавить логику для сохранения или вывода информации о Ситхе
+                    JOptionPane.showMessageDialog(frame, "Джедай " + name + " успешно создан!");
+                    frame.dispose(); // Закрытие окна после создания Ситха
+                }
+            }
+        });
+
+        // Размер окна под компоненты
+        frame.pack();
+        frame.setVisible(true); // Показываем окно после настройки всех компонентов
+
+        return null; // Возвращает null, потому что вы не используете возвращаемое значение
+    }
+
+    private static int getValidIntInput(String input, String fieldName) {
+        try {
+            return Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Пожалуйста, введите корректное число для " + fieldName);
+            return -1; // Возвращаем -1, если ввод некорректен
         }
-        return null;
     }
 
     private static Sith createSith() {
-        scanner.nextLine(); // Очистка буфера перед вводом строк
-        System.out.println("Введите имя Ситха: ");
-        String name = scanner.nextLine();
+        // Используем JDialog для модального окна
+        JDialog frame = new JDialog();
+        frame.setTitle("Форма ввода данных о Ситхе");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
-        System.out.println("Введите фракцию Ситха: ");
-        String fraction = scanner.nextLine();
+        // Устанавливаем модальность
+        frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 
-        int age = getValidIntInput("Введите возраст Ситха: ");
-        scanner.nextLine(); // Очистка буфера
+        // Запрещаем изменение размера окна
+        frame.setResizable(false);
 
-        System.out.println("Введите планету Ситха: ");
-        String planet = scanner.nextLine();
+        // Создаем панель с GridLayout для ввода данных
+        JPanel form = new JPanel();
+        form.setLayout(new GridLayout(9, 2, 10, 10)); // Добавим отступы для элементов
 
-        int powerLevel = getValidIntInput("Введите уровень силы Ситха: ");
-        scanner.nextLine(); // Очистка буфера
+        JTextField nameField = new JTextField();
+        JTextField fractionField = new JTextField();
+        JTextField planetField = new JTextField();
+        JTextField lightsaberColorField = new JTextField();
+        JTextField forceLevelField = new JTextField();
+        JTextField powerLevelField = new JTextField();
+        JTextField ageField = new JTextField();
+        JCheckBox isMasterCheckBox = new JCheckBox("Гранд-мастер");
 
-        System.out.println("Введите цвет светового меча Ситха: ");
-        String lightsaberColor = scanner.nextLine();
+        // Устанавливаем предпочтительный размер для полей ввода
+        Dimension fieldSize = new Dimension(100, 1);  // Ширина 200, высота 30
+        nameField.setPreferredSize(fieldSize);
+        fractionField.setPreferredSize(fieldSize);
+        planetField.setPreferredSize(fieldSize);
+        lightsaberColorField.setPreferredSize(fieldSize);
+        forceLevelField.setPreferredSize(fieldSize);
+        powerLevelField.setPreferredSize(fieldSize);
+        ageField.setPreferredSize(fieldSize);
 
-        int darkSideLevel = getValidIntInput("Введите уровень владения темной стороной: ");
+        JButton submitButton = new JButton("Создать Ситха");
 
-        boolean isMaster = getValidBooleanInput("Является ли Ситх мастером ситхов? (true/false): ");
+        // Добавляем компоненты на панель
+        form.add(new JLabel("Имя Ситха:"));
+        form.add(nameField);
+        form.add(new JLabel("Фракция Ситха:"));
+        form.add(fractionField);
+        form.add(new JLabel("Возраст Ситха:"));
+        form.add(ageField);
+        form.add(new JLabel("Планета Ситха:"));
+        form.add(planetField);
+        form.add(new JLabel("Уровень силы Ситха:"));
+        form.add(powerLevelField);
+        form.add(new JLabel("Цвет светового меча:"));
+        form.add(lightsaberColorField);
+        form.add(new JLabel("Уровень владения силой:"));
+        form.add(forceLevelField);
+        form.add(new JLabel("Гранд-мастер?"));
+        form.add(isMasterCheckBox);
+        form.add(submitButton);
 
-        if (!isNameExists(name)){
-            return new Sith(name, fraction, age, planet, (int) powerLevel, lightsaberColor, darkSideLevel, isMaster);
-        }
-        return null;
+        // Добавляем панель с формой на окно
+        frame.add(form, BorderLayout.CENTER);
+
+        // Обработчик события для кнопки
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Проверка введенных данных
+                String name = nameField.getText();
+                String fraction = fractionField.getText();
+                String planet = planetField.getText();
+                String lightsaberColor = lightsaberColorField.getText();
+                int forceLevel = getValidIntInput(forceLevelField.getText(), "Уровень владения силой");
+                int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
+                int age = getValidIntInput(ageField.getText(), "Возраст");
+
+                boolean isMaster = isMasterCheckBox.isSelected();
+
+                if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || lightsaberColor.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Пожалуйста, заполните все поля!");
+                } else {
+                    Sith newSith = new Sith(name, fraction, age, planet, powerLevel, lightsaberColor, forceLevel, isMaster);
+                    // Здесь можно добавить логику для сохранения или вывода информации о Ситхе
+                    JOptionPane.showMessageDialog(frame, "Ситх " + name + " успешно создан!");
+                    frame.dispose(); // Закрытие окна после создания Ситха
+                }
+            }
+        });
+
+        // Размер окна под компоненты
+        frame.pack();
+        frame.setVisible(true); // Показываем окно после настройки всех компонентов
+
+        return null; // Возвращает null, потому что вы не используете возвращаемое значение
     }
 
     private static CloneTrooper createClone() {
-        scanner.nextLine(); // Очистка буфера перед вводом строк
-        System.out.println("Введите имя клона: ");
-        String name = scanner.nextLine();
+        // Используем JDialog для модального окна
+        JDialog frame = new JDialog();
+        frame.setTitle("Форма ввода данных о Клоне");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
-        System.out.println("Введите фракцию клона: ");
-        String fraction = scanner.nextLine();
+        // Устанавливаем модальность
+        frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 
-        int age = getValidIntInput("Введите возраст клона: ");
-        scanner.nextLine(); // Очистка буфера
+        // Запрещаем изменение размера окна
+        frame.setResizable(false);
 
-        System.out.println("Введите планету клона: ");
-        String planet = scanner.nextLine();
 
-        int powerLevel = getValidIntInput("Введите уровень силы клона: ");
-        scanner.nextLine(); // Очистка буфера
+        // Создаем панель с GridLayout для ввода данных
+        JPanel form = new JPanel();
+        form.setLayout(new GridLayout(7, 2, 10, 10));
 
-        System.out.println("Введите номер клона: ");
-        String cloneNumber = scanner.nextLine();
+        JTextField nameField = new JTextField();
+        JTextField fractionField = new JTextField();
+        JTextField planetField = new JTextField();
+        JTextField powerLevelField = new JTextField();
+        JTextField ageField = new JTextField();
+        JTextField cloneNumberField = new JTextField();
 
-        if (!isNameExists(name)){
-            return new CloneTrooper(name, fraction, age, planet, (int) powerLevel, cloneNumber);
-        }
-        return null;
+        // Устанавливаем предпочтительный размер для полей ввода
+        Dimension fieldSize = new Dimension(100, 1);
+
+        nameField.setPreferredSize(fieldSize);
+        fractionField.setPreferredSize(fieldSize);
+        planetField.setPreferredSize(fieldSize);
+        ageField.setPreferredSize(fieldSize);
+        powerLevelField.setPreferredSize(fieldSize);
+        cloneNumberField.setPreferredSize(fieldSize);
+
+        JButton submitButton = new JButton("Создать Клона");
+
+        // Добавляем компоненты на панель
+        form.add(new JLabel("Имя Клона:"));
+        form.add(nameField);
+        form.add(new JLabel("Фракция Клона:"));
+        form.add(fractionField);
+        form.add(new JLabel("Возраст Клона:"));
+        form.add(ageField);
+        form.add(new JLabel("Планета Клона:"));
+        form.add(planetField);
+        form.add(new JLabel("Уровень силы Клона:"));
+        form.add(powerLevelField);
+        form.add (new JLabel("Введите серийный номер Клона"));
+        form.add (cloneNumberField);
+
+        form.add(submitButton);
+
+        // Добавляем панель с формой на окно
+        frame.add(form, BorderLayout.CENTER);
+
+        // Обработчик события для кнопки
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Проверка введенных данных
+                String name = nameField.getText();
+                String fraction = fractionField.getText();
+                String planet = planetField.getText();
+                String cloneNumber = cloneNumberField.getText();
+                int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
+                int age = getValidIntInput(ageField.getText(), "Возраст");
+
+                if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || cloneNumber.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Пожалуйста, заполните все поля!");
+                } else {
+                    CloneTrooper newCloneTrooper = new CloneTrooper(name, fraction, age, planet, powerLevel, cloneNumber);
+                    // Здесь можно добавить логику для сохранения или вывода информации о Ситхе
+                    JOptionPane.showMessageDialog(frame, "Клон " + name + " успешно создан!");
+                    frame.dispose(); // Закрытие окна после создания Ситха
+                }
+            }
+        });
+
+        // Размер окна под компоненты
+        frame.pack();
+        frame.setVisible(true); // Показываем окно после настройки всех компонентов
+
+        return null; // Возвращает null, потому что вы не используете возвращаемое значение
     }
 
     private static Droid createDroid() {
-        scanner.nextLine(); // Очистка буфера перед вводом строк
-        System.out.println("Введите имя дроида: ");
-        String name = scanner.nextLine();
+        // Используем JDialog для модального окна
+        JDialog frame = new JDialog();
+        frame.setTitle("Форма ввода данных о Дроиде");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
-        System.out.println("Введите фракцию дроида: ");
-        String fraction = scanner.nextLine();
+        // Устанавливаем модальность
+        frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 
-        int age = getValidIntInput("Введите возраст дроида: ");
-        scanner.nextLine(); // Очистка буфера
+        // Запрещаем изменение размера окна
+        frame.setResizable(false);
 
-        System.out.println("Введите планету дроида: ");
-        String planet = scanner.nextLine();
 
-        int powerLevel = getValidIntInput("Введите уровень силы дроида: ");
-        scanner.nextLine(); // Очистка буфера
+        // Создаем панель с GridLayout для ввода данных
+        JPanel form = new JPanel();
+        form.setLayout(new GridLayout(7, 2, 10, 10));
 
-        System.out.println("Введите модель дроида: ");
-        String model = scanner.nextLine();
+        JTextField nameField = new JTextField();
+        JTextField fractionField = new JTextField();
+        JTextField planetField = new JTextField();
+        JTextField powerLevelField = new JTextField();
+        JTextField ageField = new JTextField();
+        JTextField modelField = new JTextField();
+        JTextField typeField = new JTextField();
+        JTextField batteryLevelField = new JTextField();
 
-        System.out.println("Введите тип дроида: ");
-        String type = scanner.nextLine();
+        // Устанавливаем предпочтительный размер для полей ввода
+        Dimension fieldSize = new Dimension(100, 1);
 
-        int batteryLevel = getValidIntInput("Введите уровень заряда батареи дроида: ");
-        if (!isNameExists(name)){
-            return new Droid(name, fraction, age, planet, powerLevel, model, type, batteryLevel);
-        }
-        return null;
-    }
+        nameField.setPreferredSize(fieldSize);
+        fractionField.setPreferredSize(fieldSize);
+        planetField.setPreferredSize(fieldSize);
+        ageField.setPreferredSize(fieldSize);
+        powerLevelField.setPreferredSize(fieldSize);
+        modelField.setPreferredSize(fieldSize);
+        typeField.setPreferredSize(fieldSize);
+        batteryLevelField.setPreferredSize(fieldSize);
 
-    private static int getValidIntInput(String prompt) {
-        while (true) {
-            try {
-                System.out.println(prompt);
-                return scanner.nextInt();
-            } catch (InputMismatchException e) {
-                System.out.println("Ошибка: Введите целое число.");
-                scanner.nextLine(); // Очистка буфера
+        JButton submitButton = new JButton("Создать Дроида");
+
+        // Добавляем компоненты на панель
+        form.add(new JLabel("Имя Дроида:"));
+        form.add(nameField);
+        form.add(new JLabel("Фракция Дроида:"));
+        form.add(fractionField);
+        form.add(new JLabel("Возраст Дроида:"));
+        form.add(ageField);
+        form.add(new JLabel("Планета Дроида:"));
+        form.add(planetField);
+        form.add(new JLabel("Уровень силы Дроида:"));
+        form.add(powerLevelField);
+        form.add (new JLabel("Введите модель Дроида"));
+        form.add (modelField);
+        form.add (new JLabel("Введите функцию Дроида"));
+        form.add (modelField);
+        form.add (new JLabel("Введите уровень заряда Дроида"));
+        form.add (modelField);
+
+        form.add(submitButton);
+
+        // Добавляем панель с формой на окно
+        frame.add(form, BorderLayout.CENTER);
+
+        // Обработчик события для кнопки
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Проверка введенных данных
+                String name = nameField.getText();
+                String fraction = fractionField.getText();
+                String planet = planetField.getText();
+                String model = modelField.getText();
+                String type = typeField.getText();
+                int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
+                int age = getValidIntInput(ageField.getText(), "Возраст");
+                int batteryLevel = getValidIntInput(batteryLevelField.getText(), "Возраст");
+
+                if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || model.isEmpty() || type.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Пожалуйста, заполните все поля!");
+                } else {
+                    Droid newDroid = new Droid(name, fraction, age, planet, powerLevel, model, type, batteryLevel);
+                    // Здесь можно добавить логику для сохранения или вывода информации о Ситхе
+                    JOptionPane.showMessageDialog(frame, "Клон " + name + " успешно создан!");
+                    frame.dispose(); // Закрытие окна после создания Ситха
+                }
             }
-        }
-    }
+        });
 
-    private static boolean getValidBooleanInput(String prompt) {
-        while (true) {
-            try {
-                System.out.println(prompt);
-                return scanner.nextBoolean();
-            } catch (InputMismatchException e) {
-                System.out.println("Ошибка: Введите true или false.");
-                scanner.nextLine(); // Очистка буфера
-            }
-        }
+        // Размер окна под компоненты
+        frame.pack();
+        frame.setVisible(true); // Показываем окно после настройки всех компонентов
+
+        return null; // Возвращает null, потому что вы не используете возвращаемое значение
     }
 
     private static int getValidIntegerInput() {

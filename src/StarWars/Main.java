@@ -4,6 +4,6 @@ import StarWars.Entities.Droid;
 
 public class Main {
     public static void main(String[] args) {
-        EntityManager.menu();
+        new MenuGUI();
     }
 }

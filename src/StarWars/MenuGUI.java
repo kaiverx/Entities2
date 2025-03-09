@@ -10,24 +10,22 @@ import java.util.List;
 public class MenuGUI {
     private JFrame frame;
     private JPanel rightPanel;
-    private DefaultListModel<String> listModel;
-    private JList<String> entityList;
-    private JScrollPane scrollPane;
+    private JButton showAllButton;
 
     public MenuGUI() {
         frame = new JFrame("Меню Star Wars");
-        frame.setSize(1280, 720); // Устанавливаем разрешение окна
+        frame.setSize(1110, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout()); // Основной макет окна
 
-        // Левый панель с кнопками
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Вертикальное расположение кнопок
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Отступ слева
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Вертикальное расположение кнопок**
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Отступ слева**
 
         // Добавляем кнопки
-        panel.add(createButton("Показать всех", e -> showEntitiesList()));
-        panel.add(Box.createVerticalStrut(10)); // Отступ между кнопками
+        showAllButton = createButton("Показать всех", e -> showEntitiesTable());
+        panel.add(showAllButton);
+        panel.add(Box.createVerticalStrut(10));
         panel.add(createButton("Добавить", e -> EntityManager.addEntity()));
         panel.add(Box.createVerticalStrut(10));
         panel.add(createButton("Изменить", e -> updateEntityInfo()));
@@ -45,21 +43,11 @@ public class MenuGUI {
         // Добавляем панель с кнопками в левую часть
         frame.add(panel, BorderLayout.WEST);
 
-        // Правая панель для списка с прокруткой
+        // Правая панель для списка
         rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
         frame.add(rightPanel, BorderLayout.CENTER);
 
-        // Кнопка для скрытия/показа списка
-        JButton toggleTableButton = new JButton("Закрыть таблицу");
-        toggleTableButton.addActionListener(e -> toggleTableVisibility());
-
-        // Добавляем кнопку в правый нижний угол
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BorderLayout());
-        bottomPanel.add(toggleTableButton, BorderLayout.SOUTH);
-
-        frame.add(bottomPanel, BorderLayout.SOUTH);
         frame.setLocationRelativeTo(null); // Центрируем окно на экране
         frame.setVisible(true); // Показываем окно
     }
@@ -89,7 +77,7 @@ public class MenuGUI {
     }
 
     private void loadEntities() {
-        String type = JOptionPane.showInputDialog("Введите тип сущностей (или оставьте пустым для всех):");
+        String type = JOptionPane.showInputDialog("Введите тип сущностей (jedi, sith, droid, clone) или оставьте пустым для всех:");
         EntityManager.loadEntitiesFromFile(type != null && !type.isEmpty() ? type : null);
     }
 
@@ -99,49 +87,64 @@ public class MenuGUI {
     }
 
     // Метод для отображения списка сущностей
-    private void showEntitiesList() {
+    private void showEntitiesTable() {
         List<Entity> entities = EntityManager.getEntities();
-        List<String> entityNames = new ArrayList<>();
 
-        for (Entity entity : entities) {
-            entityNames.add(entity.toString());
+
+        // Заголовки таблицы
+        String[] columnNames = {
+                "Имя", "Фракция", "Возраст", "Планета", "Сила",
+                "Цвет меча", "Уровень силы", "Мастер?", "Тип модели", "Функция", "Батарея", "Номер клона"
+        };
+
+        // Данные для таблицы
+        Object[][] data = new Object[entities.size()][columnNames.length];
+
+        for (int i = 0; i < entities.size(); i++) {
+            Entity entity = entities.get(i);
+            Object[] row = new Object[columnNames.length];
+
+            row[0] = entity.getName();
+            row[1] = entity.getFraction();
+            row[2] = entity.getAge();
+            row[3] = entity.getPlanet();
+            row[4] = entity.getPowerLevel();
+
+            // Заполняем уникальные параметры
+            if (entity instanceof Jedi) {
+                Jedi jedi = (Jedi) entity;
+                row[5] = jedi.getLightsaberColor();
+                row[6] = jedi.getForceLevel();
+                row[7] = jedi.isGrandMaster();
+            } else if (entity instanceof Sith) {
+                Sith sith = (Sith) entity;
+                row[5] = sith.getLightsaberColor();
+                row[6] = sith.getForceLevel();
+                row[7] = sith.isMaster();
+            } else if (entity instanceof Droid) {
+                Droid droid = (Droid) entity;
+                row[8] = droid.getModelType();
+                row[9] = droid.getFunction();
+                row[10] = droid.getBatteryLevel();
+            } else if (entity instanceof CloneTrooper) {
+                CloneTrooper clone = (CloneTrooper) entity;
+                row[11] = clone.getCloneNumber();
+            }
+
+            // Заменяем null на "-"
+            for (int j = 0; j < row.length; j++) {
+                if (row[j] == null) row[j] = "-";
+            }
+
+            data[i] = row;
         }
 
-        // Создаем модель списка и добавляем элементы
-        listModel = new DefaultListModel<>();
-        for (String name : entityNames) {
-            listModel.addElement(name);
-        }
+        JTable table = new JTable(data, columnNames);
+        JScrollPane tableScrollPane = new JScrollPane(table);
 
-        // Создаем JList и JScrollPane для прокрутки
-        entityList = new JList<>(listModel);
-        scrollPane = new JScrollPane(entityList);
-
-        // Добавляем прокручиваемый список в правую панель
         rightPanel.removeAll();
-        rightPanel.add(scrollPane, BorderLayout.CENTER);
-
-        // Обновляем окно
+        rightPanel.add(tableScrollPane, BorderLayout.CENTER);
         rightPanel.revalidate();
         rightPanel.repaint();
-    }
-
-    // Метод для переключения видимости списка
-    private void toggleTableVisibility() {
-        if (rightPanel.getComponentCount() > 0) {
-            // Если список отображается, скрываем его
-            rightPanel.removeAll();
-        } else {
-            // Если список скрыт, показываем его
-            showEntitiesList();
-        }
-
-        // Обновляем правую панель
-        rightPanel.revalidate();
-        rightPanel.repaint();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(MenuGUI::new);
     }
 }

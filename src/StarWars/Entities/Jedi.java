@@ -20,7 +20,7 @@ public class Jedi extends Entity {
         return forceLevel;
     }
 
-    public boolean isGrandMaster() {
+    public boolean isMaster() {
         return isMaster;
     }
 

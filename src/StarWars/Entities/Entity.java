@@ -85,4 +85,12 @@ abstract public class Entity {
     public abstract void setCloneNumber(String cloneNumber);
 
     public abstract void setFunction(String function);
+
+    public String getLightsaberColor() {
+        throw new UnsupportedOperationException("Метод не поддерживается для данного типа сущности.");
+    }
+
+    public int getForceLevel() {
+        throw new UnsupportedOperationException("Метод не поддерживается для данного типа сущности.");
+    }
 }

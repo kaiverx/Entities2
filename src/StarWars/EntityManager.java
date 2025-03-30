@@ -64,11 +64,11 @@ public class EntityManager {
         // Добавляем кнопки
         panel.add(createButton("Джедай", e -> { dialog.dispose();createJedi();  }));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createButton("Ситх", e -> {createSith(); dialog.dispose();}));
+        panel.add(createButton("Ситх", e -> {dialog.dispose();createSith(); }));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createButton("Клон", e -> {createClone(); dialog.dispose();}));
+        panel.add(createButton("Клон", e -> {dialog.dispose();createClone(); }));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createButton("Дроид", e -> {createDroid(); dialog.dispose();}));
+        panel.add(createButton("Дроид", e -> {dialog.dispose();createDroid(); }));
         panel.add(Box.createVerticalStrut(10));
         panel.add(createButton("Вернуться в главное меню", e -> dialog.dispose()));
 
@@ -107,7 +107,7 @@ public class EntityManager {
             if (entity instanceof Jedi) {
                 writer.write(((Jedi) entity).getLightsaberColor() + "\n");  // Цвет светового меча
                 writer.write(((Jedi) entity).getForceLevel() + "\n");  // Уровень владения силой
-                writer.write(((Jedi) entity).isGrandMaster() + "\n");  // Гранд-мастер
+                writer.write(((Jedi) entity).isMaster() + "\n");  // Гранд-мастер
             } else if (entity instanceof Sith) {
                 writer.write(((Sith) entity).getLightsaberColor() + "\n");  // Цвет светового меча
                 writer.write(((Sith) entity).getForceLevel() + "\n");  // Уровень владения темной стороной
@@ -306,27 +306,47 @@ public class EntityManager {
 
     public static void interactWithEntity(String name) {
         Entity entity = findEntityByName(name);
-        if (entity != null) {
-            System.out.println("Что вы хотите сделать?");
-            System.out.println("1. Сыграть в Голошахматы");
-            System.out.println("2. Вызвать персонажа на поединок");
-            System.out.println("3. Дать 10 кредитов");
-            System.out.println("4. Отправить выполнять задание");
-            System.out.println("5. Вернуться в главное меню");
-            int choice = getValidIntegerInput();
-            switch (choice) {
-                case 1 -> System.out.println("Вы сыграли в Голошахматы с " + entity.getName());
-                case 2 -> System.out.println("Вы сразились с " + entity.getName());
-                case 3 -> System.out.println("Вы дали 10 кредитов " + entity.getName());
-                case 4 -> System.out.println(entity.takeCare());
-                case 5 -> {
-                }
-                default -> System.out.println("Неверный выбор.");
-            }
-        } else {
-            System.out.println("Персонаж не найден.");
-        }
 
+        if (entity != null) {
+            JFrame frame = new JFrame("Взаимодействие с " + entity.getName());
+            frame.setSize(400, 300);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setLayout(new BorderLayout());
+
+            JTextArea outputArea = new JTextArea();
+            outputArea.setEditable(false);
+            frame.add(new JScrollPane(outputArea), BorderLayout.CENTER);
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setLayout(new GridLayout(5, 1));
+
+            JButton btn1 = new JButton("Сыграть в Голошахматы");
+            btn1.addActionListener(e -> outputArea.append("Вы сыграли в Голошахматы с " + entity.getName() + "\n"));
+
+            JButton btn2 = new JButton("Вызвать на поединок");
+            btn2.addActionListener(e -> outputArea.append("Вы сразились с " + entity.getName() + "\n"));
+
+            JButton btn3 = new JButton("Дать 10 кредитов");
+            btn3.addActionListener(e -> outputArea.append("Вы дали 10 кредитов " + entity.getName() + "\n"));
+
+            JButton btn4 = new JButton("Отправить выполнять задание");
+            btn4.addActionListener(e -> outputArea.append(entity.takeCare() + "\n"));
+
+            JButton btn5 = new JButton("Закрыть");
+            btn5.addActionListener(e -> frame.dispose());
+
+            buttonPanel.add(btn1);
+            buttonPanel.add(btn2);
+            buttonPanel.add(btn3);
+            buttonPanel.add(btn4);
+            buttonPanel.add(btn5);
+
+            frame.add(buttonPanel, BorderLayout.SOUTH);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(null, "Персонаж не найден.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public static boolean isNameExists(String name) {
@@ -353,21 +373,14 @@ public class EntityManager {
     }
 
     private static Jedi createJedi() {
-        // Используем JDialog для модального окна
         JDialog frame = new JDialog();
         frame.setTitle("Форма ввода данных о Джедае");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-
-        // Устанавливаем модальность
         frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-
-        // Запрещаем изменение размера окна
         frame.setResizable(false);
 
-        // Создаем панель с GridLayout для ввода данных
-        JPanel form = new JPanel();
-        form.setLayout(new GridLayout(9, 2, 10, 10)); // Добавим отступы для элементов
+        JPanel form = new JPanel(new GridLayout(9, 2, 10, 10));
 
         JTextField nameField = new JTextField();
         JTextField fractionField = new JTextField();
@@ -378,19 +391,8 @@ public class EntityManager {
         JTextField ageField = new JTextField();
         JCheckBox isMasterCheckBox = new JCheckBox("Гранд-мастер");
 
-        // Устанавливаем предпочтительный размер для полей ввода
-        Dimension fieldSize = new Dimension(100, 1);  // Ширина 200, высота 30
-        nameField.setPreferredSize(fieldSize);
-        fractionField.setPreferredSize(fieldSize);
-        planetField.setPreferredSize(fieldSize);
-        lightsaberColorField.setPreferredSize(fieldSize);
-        forceLevelField.setPreferredSize(fieldSize);
-        powerLevelField.setPreferredSize(fieldSize);
-        ageField.setPreferredSize(fieldSize);
-
         JButton submitButton = new JButton("Создать Джедая");
 
-        // Добавляем компоненты на панель
         form.add(new JLabel("Имя Джедая:"));
         form.add(nameField);
         form.add(new JLabel("Фракция Джедая:"));
@@ -409,67 +411,64 @@ public class EntityManager {
         form.add(isMasterCheckBox);
         form.add(submitButton);
 
-        // Добавляем панель с формой на окно
         frame.add(form, BorderLayout.CENTER);
 
-        // Обработчик события для кнопки
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Проверка введенных данных
-                String name = nameField.getText();
-                String fraction = fractionField.getText();
-                String planet = planetField.getText();
-                String lightsaberColor = lightsaberColorField.getText();
-                int forceLevel = getValidIntInput(forceLevelField.getText(), "Уровень владения силой");
-                int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
-                int age = getValidIntInput(ageField.getText(), "Возраст");
+        submitButton.addActionListener(e -> {
+            // Читаем данные
+            String name = nameField.getText().trim();
+            String fraction = fractionField.getText().trim();
+            String planet = planetField.getText().trim();
+            String lightsaberColor = lightsaberColorField.getText().trim();
+            int forceLevel = getValidIntInput(forceLevelField.getText(), "Уровень владения силой");
+            int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
+            int age = getValidIntInput(ageField.getText(), "Возраст");
+            boolean isMaster = isMasterCheckBox.isSelected();
 
-                boolean isMaster = isMasterCheckBox.isSelected();
-
-                if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || lightsaberColor.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Пожалуйста, заполните все поля!");
-                } else {
-                    Jedi newJedi = new Jedi(name, fraction, age, planet, powerLevel, lightsaberColor, forceLevel, isMaster);
-                    // Здесь можно добавить логику для сохранения или вывода информации о Ситхе
-                    JOptionPane.showMessageDialog(frame, "Джедай " + name + " успешно создан!");
-                    frame.dispose(); // Закрытие окна после создания Ситха
-                }
+            // Проверяем корректность ввода
+            if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || lightsaberColor.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Ошибка: Заполните все текстовые поля!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            if (forceLevel < 0 || powerLevel < 0 || age < 0) {
+                JOptionPane.showMessageDialog(frame, "Ошибка: Числовые поля должны содержать корректные положительные значения!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Создаем Джедая
+            Jedi newJedi = new Jedi(name, fraction, age, planet, powerLevel, lightsaberColor, forceLevel, isMaster);
+            writeEntityToFile(newJedi, "Jedi");
+
+            JOptionPane.showMessageDialog(frame, "Джедай " + name + " успешно создан!");
+            frame.dispose();
         });
 
-        // Размер окна под компоненты
         frame.pack();
-        frame.setVisible(true); // Показываем окно после настройки всех компонентов
+        frame.setVisible(true);
 
-        return null; // Возвращает null, потому что вы не используете возвращаемое значение
+        return null;
     }
 
     private static int getValidIntInput(String input, String fieldName) {
         try {
-            return Integer.parseInt(input);
+            int value = Integer.parseInt(input.trim());
+            if (value < 0) throw new NumberFormatException();
+            return value;
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Пожалуйста, введите корректное число для " + fieldName);
-            return -1; // Возвращаем -1, если ввод некорректен
+            JOptionPane.showMessageDialog(null, "Ошибка: " + fieldName + " должно быть положительным числом!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+            return -1;
         }
     }
 
     private static Sith createSith() {
-        // Используем JDialog для модального окна
         JDialog frame = new JDialog();
         frame.setTitle("Форма ввода данных о Ситхе");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-
-        // Устанавливаем модальность
         frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-
-        // Запрещаем изменение размера окна
         frame.setResizable(false);
 
-        // Создаем панель с GridLayout для ввода данных
-        JPanel form = new JPanel();
-        form.setLayout(new GridLayout(9, 2, 10, 10)); // Добавим отступы для элементов
+        JPanel form = new JPanel(new GridLayout(9, 2, 10, 10));
 
         JTextField nameField = new JTextField();
         JTextField fractionField = new JTextField();
@@ -480,19 +479,8 @@ public class EntityManager {
         JTextField ageField = new JTextField();
         JCheckBox isMasterCheckBox = new JCheckBox("Гранд-мастер");
 
-        // Устанавливаем предпочтительный размер для полей ввода
-        Dimension fieldSize = new Dimension(100, 1);  // Ширина 200, высота 30
-        nameField.setPreferredSize(fieldSize);
-        fractionField.setPreferredSize(fieldSize);
-        planetField.setPreferredSize(fieldSize);
-        lightsaberColorField.setPreferredSize(fieldSize);
-        forceLevelField.setPreferredSize(fieldSize);
-        powerLevelField.setPreferredSize(fieldSize);
-        ageField.setPreferredSize(fieldSize);
-
         JButton submitButton = new JButton("Создать Ситха");
 
-        // Добавляем компоненты на панель
         form.add(new JLabel("Имя Ситха:"));
         form.add(nameField);
         form.add(new JLabel("Фракция Ситха:"));
@@ -511,59 +499,53 @@ public class EntityManager {
         form.add(isMasterCheckBox);
         form.add(submitButton);
 
-        // Добавляем панель с формой на окно
         frame.add(form, BorderLayout.CENTER);
 
-        // Обработчик события для кнопки
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Проверка введенных данных
-                String name = nameField.getText();
-                String fraction = fractionField.getText();
-                String planet = planetField.getText();
-                String lightsaberColor = lightsaberColorField.getText();
-                int forceLevel = getValidIntInput(forceLevelField.getText(), "Уровень владения силой");
-                int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
-                int age = getValidIntInput(ageField.getText(), "Возраст");
+        submitButton.addActionListener(e -> {
+            // Читаем данные
+            String name = nameField.getText().trim();
+            String fraction = fractionField.getText().trim();
+            String planet = planetField.getText().trim();
+            String lightsaberColor = lightsaberColorField.getText().trim();
+            int forceLevel = getValidIntInput(forceLevelField.getText(), "Уровень владения силой");
+            int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
+            int age = getValidIntInput(ageField.getText(), "Возраст");
+            boolean isMaster = isMasterCheckBox.isSelected();
 
-                boolean isMaster = isMasterCheckBox.isSelected();
-
-                if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || lightsaberColor.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Пожалуйста, заполните все поля!");
-                } else {
-                    Sith newSith = new Sith(name, fraction, age, planet, powerLevel, lightsaberColor, forceLevel, isMaster);
-                    // Здесь можно добавить логику для сохранения или вывода информации о Ситхе
-                    JOptionPane.showMessageDialog(frame, "Ситх " + name + " успешно создан!");
-                    frame.dispose(); // Закрытие окна после создания Ситха
-                }
+            // Проверяем корректность ввода
+            if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || lightsaberColor.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Ошибка: Заполните все текстовые поля!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            if (forceLevel < 0 || powerLevel < 0 || age < 0) {
+                JOptionPane.showMessageDialog(frame, "Ошибка: Числовые поля должны содержать корректные положительные значения!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Создаем Ситха
+            Sith newSith = new Sith(name, fraction, age, planet, powerLevel, lightsaberColor, forceLevel, isMaster);
+            writeEntityToFile(newSith, "Sith");
+
+            JOptionPane.showMessageDialog(frame, "Ситх " + name + " успешно создан!");
+            frame.dispose();
         });
 
-        // Размер окна под компоненты
         frame.pack();
-        frame.setVisible(true); // Показываем окно после настройки всех компонентов
+        frame.setVisible(true);
 
-        return null; // Возвращает null, потому что вы не используете возвращаемое значение
+        return null;
     }
 
     private static CloneTrooper createClone() {
-        // Используем JDialog для модального окна
         JDialog frame = new JDialog();
         frame.setTitle("Форма ввода данных о Клоне");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-
-        // Устанавливаем модальность
         frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-
-        // Запрещаем изменение размера окна
         frame.setResizable(false);
 
-
-        // Создаем панель с GridLayout для ввода данных
-        JPanel form = new JPanel();
-        form.setLayout(new GridLayout(7, 2, 10, 10));
+        JPanel form = new JPanel(new GridLayout(7, 2, 10, 10));
 
         JTextField nameField = new JTextField();
         JTextField fractionField = new JTextField();
@@ -572,19 +554,8 @@ public class EntityManager {
         JTextField ageField = new JTextField();
         JTextField cloneNumberField = new JTextField();
 
-        // Устанавливаем предпочтительный размер для полей ввода
-        Dimension fieldSize = new Dimension(100, 1);
-
-        nameField.setPreferredSize(fieldSize);
-        fractionField.setPreferredSize(fieldSize);
-        planetField.setPreferredSize(fieldSize);
-        ageField.setPreferredSize(fieldSize);
-        powerLevelField.setPreferredSize(fieldSize);
-        cloneNumberField.setPreferredSize(fieldSize);
-
         JButton submitButton = new JButton("Создать Клона");
 
-        // Добавляем компоненты на панель
         form.add(new JLabel("Имя Клона:"));
         form.add(nameField);
         form.add(new JLabel("Фракция Клона:"));
@@ -595,61 +566,53 @@ public class EntityManager {
         form.add(planetField);
         form.add(new JLabel("Уровень силы Клона:"));
         form.add(powerLevelField);
-        form.add (new JLabel("Введите серийный номер Клона"));
-        form.add (cloneNumberField);
-
+        form.add(new JLabel("Введите серийный номер Клона:"));
+        form.add(cloneNumberField);
         form.add(submitButton);
 
-        // Добавляем панель с формой на окно
         frame.add(form, BorderLayout.CENTER);
 
-        // Обработчик события для кнопки
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Проверка введенных данных
-                String name = nameField.getText();
-                String fraction = fractionField.getText();
-                String planet = planetField.getText();
-                String cloneNumber = cloneNumberField.getText();
-                int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
-                int age = getValidIntInput(ageField.getText(), "Возраст");
+        submitButton.addActionListener(e -> {
+            // Читаем данные
+            String name = nameField.getText().trim();
+            String fraction = fractionField.getText().trim();
+            String planet = planetField.getText().trim();
+            String cloneNumber = cloneNumberField.getText().trim();
+            int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
+            int age = getValidIntInput(ageField.getText(), "Возраст");
 
-                if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || cloneNumber.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Пожалуйста, заполните все поля!");
-                } else {
-                    CloneTrooper newCloneTrooper = new CloneTrooper(name, fraction, age, planet, powerLevel, cloneNumber);
-                    // Здесь можно добавить логику для сохранения или вывода информации о Ситхе
-                    JOptionPane.showMessageDialog(frame, "Клон " + name + " успешно создан!");
-                    frame.dispose(); // Закрытие окна после создания Ситха
-                }
+            if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || cloneNumber.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Ошибка: Заполните все текстовые поля!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            if (powerLevel < 0 || age < 0) {
+                JOptionPane.showMessageDialog(frame, "Ошибка: Числовые поля должны содержать корректные положительные значения!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            CloneTrooper newCloneTrooper = new CloneTrooper(name, fraction, age, planet, powerLevel, cloneNumber);
+            writeEntityToFile(newCloneTrooper, "CloneTrooper");
+
+            JOptionPane.showMessageDialog(frame, "Клон " + name + " успешно создан!");
+            frame.dispose();
         });
 
-        // Размер окна под компоненты
         frame.pack();
-        frame.setVisible(true); // Показываем окно после настройки всех компонентов
+        frame.setVisible(true);
 
-        return null; // Возвращает null, потому что вы не используете возвращаемое значение
+        return null;
     }
 
     private static Droid createDroid() {
-        // Используем JDialog для модального окна
         JDialog frame = new JDialog();
         frame.setTitle("Форма ввода данных о Дроиде");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-
-        // Устанавливаем модальность
         frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-
-        // Запрещаем изменение размера окна
         frame.setResizable(false);
 
-
-        // Создаем панель с GridLayout для ввода данных
-        JPanel form = new JPanel();
-        form.setLayout(new GridLayout(7, 2, 10, 10));
+        JPanel form = new JPanel(new GridLayout(8, 2, 10, 10));
 
         JTextField nameField = new JTextField();
         JTextField fractionField = new JTextField();
@@ -660,21 +623,8 @@ public class EntityManager {
         JTextField typeField = new JTextField();
         JTextField batteryLevelField = new JTextField();
 
-        // Устанавливаем предпочтительный размер для полей ввода
-        Dimension fieldSize = new Dimension(100, 1);
-
-        nameField.setPreferredSize(fieldSize);
-        fractionField.setPreferredSize(fieldSize);
-        planetField.setPreferredSize(fieldSize);
-        ageField.setPreferredSize(fieldSize);
-        powerLevelField.setPreferredSize(fieldSize);
-        modelField.setPreferredSize(fieldSize);
-        typeField.setPreferredSize(fieldSize);
-        batteryLevelField.setPreferredSize(fieldSize);
-
         JButton submitButton = new JButton("Создать Дроида");
 
-        // Добавляем компоненты на панель
         form.add(new JLabel("Имя Дроида:"));
         form.add(nameField);
         form.add(new JLabel("Фракция Дроида:"));
@@ -685,193 +635,279 @@ public class EntityManager {
         form.add(planetField);
         form.add(new JLabel("Уровень силы Дроида:"));
         form.add(powerLevelField);
-        form.add (new JLabel("Введите модель Дроида"));
-        form.add (modelField);
-        form.add (new JLabel("Введите функцию Дроида"));
-        form.add (modelField);
-        form.add (new JLabel("Введите уровень заряда Дроида"));
-        form.add (modelField);
-
+        form.add(new JLabel("Введите модель Дроида:"));
+        form.add(modelField);
+        form.add(new JLabel("Введите функцию Дроида:"));
+        form.add(typeField);
+        form.add(new JLabel("Введите уровень заряда Дроида:"));
+        form.add(batteryLevelField);
         form.add(submitButton);
 
-        // Добавляем панель с формой на окно
         frame.add(form, BorderLayout.CENTER);
 
-        // Обработчик события для кнопки
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Проверка введенных данных
-                String name = nameField.getText();
-                String fraction = fractionField.getText();
-                String planet = planetField.getText();
-                String model = modelField.getText();
-                String type = typeField.getText();
-                int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
-                int age = getValidIntInput(ageField.getText(), "Возраст");
-                int batteryLevel = getValidIntInput(batteryLevelField.getText(), "Возраст");
+        submitButton.addActionListener(e -> {
+            // Читаем данные
+            String name = nameField.getText().trim();
+            String fraction = fractionField.getText().trim();
+            String planet = planetField.getText().trim();
+            String model = modelField.getText().trim();
+            String type = typeField.getText().trim();
+            int powerLevel = getValidIntInput(powerLevelField.getText(), "Уровень силы");
+            int age = getValidIntInput(ageField.getText(), "Возраст");
+            int batteryLevel = getValidIntInput(batteryLevelField.getText(), "Уровень заряда");
 
-                if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || model.isEmpty() || type.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Пожалуйста, заполните все поля!");
-                } else {
-                    Droid newDroid = new Droid(name, fraction, age, planet, powerLevel, model, type, batteryLevel);
-                    // Здесь можно добавить логику для сохранения или вывода информации о Ситхе
-                    JOptionPane.showMessageDialog(frame, "Клон " + name + " успешно создан!");
-                    frame.dispose(); // Закрытие окна после создания Ситха
+            if (name.isEmpty() || fraction.isEmpty() || planet.isEmpty() || model.isEmpty() || type.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Ошибка: Заполните все текстовые поля!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (powerLevel < 0 || age < 0 || batteryLevel < 0) {
+                JOptionPane.showMessageDialog(frame, "Ошибка: Числовые поля должны содержать корректные положительные значения!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Droid newDroid = new Droid(name, fraction, age, planet, powerLevel, model, type, batteryLevel);
+            writeEntityToFile(newDroid, "Droid");
+
+            JOptionPane.showMessageDialog(frame, "Дроид " + name + " успешно создан!");
+            frame.dispose();
+        });
+
+        frame.pack();
+        frame.setVisible(true);
+
+        return null;
+    }
+
+    public static void show() {
+        JDialog frame = new JDialog();
+        frame.setTitle("Фильтрация персонажей");
+        frame.setSize(700, 300);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JTextArea resultArea = new JTextArea(10, 30);
+        resultArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(resultArea);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0, 1)); // Каждый фильтр будет на новой строке
+
+        JButton typeButton = new JButton("Фильтровать по типу");
+        JButton fractionButton = new JButton("Фильтровать по фракции");
+        JButton ageButton = new JButton("Фильтровать по возрасту");
+        JButton powerButton = new JButton("Фильтровать по уровню силы");
+        JButton planetButton = new JButton("Фильтровать по планете");
+        JButton backButton = new JButton("Вернуться в главное меню");
+
+        typeButton.addActionListener(e -> {
+            String type = JOptionPane.showInputDialog(frame, "Введите тип сущности (например, Droid, CloneTrooper):");
+            List<Entity> filteredEntities = new ArrayList<>();
+            for (Entity entity : entities) {
+                if (entity.getClass().getSimpleName().equalsIgnoreCase(type)) {
+                    filteredEntities.add(entity);
                 }
+            }
+
+            updateResults(resultArea, filteredEntities);
+        });
+
+        fractionButton.addActionListener(e -> {
+            String fraction = JOptionPane.showInputDialog(frame, "Введите фракцию:");
+            List<Entity> filteredEntities = new ArrayList<>();
+            for (Entity entity : entities) {
+                if (entity.getFraction().equalsIgnoreCase(fraction)) {
+                    filteredEntities.add(entity);
+                }
+            }
+
+            updateResults(resultArea, filteredEntities);
+        });
+
+        ageButton.addActionListener(e -> {
+            String minAgeStr = JOptionPane.showInputDialog(frame, "Введите минимальный возраст:");
+            String maxAgeStr = JOptionPane.showInputDialog(frame, "Введите максимальный возраст:");
+            try {
+                int minAge = Integer.parseInt(minAgeStr);
+                int maxAge = Integer.parseInt(maxAgeStr);
+                List<Entity> filteredEntities = new ArrayList<>();
+                for (Entity entity : entities) {
+                    if (entity.getAge() >= minAge && entity.getAge() <= maxAge) {
+                        filteredEntities.add(entity);
+                    }
+                }
+
+                updateResults(resultArea, filteredEntities);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Введите корректные значения для возраста.");
             }
         });
 
-        // Размер окна под компоненты
-        frame.pack();
-        frame.setVisible(true); // Показываем окно после настройки всех компонентов
+        powerButton.addActionListener(e -> {
+            String minPowerStr = JOptionPane.showInputDialog(frame, "Введите минимальный уровень силы:");
+            String maxPowerStr = JOptionPane.showInputDialog(frame, "Введите максимальный уровень силы:");
+            try {
+                int minPower = Integer.parseInt(minPowerStr);
+                int maxPower = Integer.parseInt(maxPowerStr);
+                List<Entity> filteredEntities = new ArrayList<>();
+                for (Entity entity : entities) {
+                    if (entity.getPowerLevel() >= minPower && entity.getPowerLevel() <= maxPower) {
+                        filteredEntities.add(entity);
+                    }
+                }
 
-        return null; // Возвращает null, потому что вы не используете возвращаемое значение
+                updateResults(resultArea, filteredEntities);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Введите корректные значения для уровня силы.");
+            }
+        });
+
+        planetButton.addActionListener(e -> {
+            String planet = JOptionPane.showInputDialog(frame, "Введите планету:");
+            List<Entity> filteredEntities = new ArrayList<>();
+            for (Entity entity : entities) {
+                if (entity.getPlanet().equalsIgnoreCase(planet)) {
+                    filteredEntities.add(entity);
+                }
+            }
+
+            updateResults(resultArea, filteredEntities);
+        });
+
+        backButton.addActionListener(e -> {
+            frame.dispose(); // Закрытие окна
+        });
+
+        buttonPanel.add(typeButton);
+        buttonPanel.add(fractionButton);
+        buttonPanel.add(ageButton);
+        buttonPanel.add(powerButton);
+        buttonPanel.add(planetButton);
+        buttonPanel.add(backButton);
+
+        frame.add(buttonPanel, BorderLayout.WEST);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        frame.setVisible(true);
     }
 
-    private static int getValidIntegerInput() {
-        while (!scanner.hasNextInt()) {
-            System.out.println("Ошибка ввода! Пожалуйста, введите целое число.");
-            scanner.next();
-        }
-        return scanner.nextInt();
-    }
-
-    public static void show(int choice){
-        List<Entity> filteredEntities = new ArrayList<>();
-
-
-        switch (choice) {
-            case 1 -> {
-                System.out.println("Введите тип сущности:");
-                String type = new Scanner(System.in).nextLine().trim().toLowerCase();
-                filteredEntities = entities.stream()
-                        .filter(entity -> entity.getClass().getSimpleName().equalsIgnoreCase(type))
-                        .toList();
-            }
-            case 2 -> {
-                System.out.println("Введите фракцию:");
-                String fraction = new Scanner(System.in).nextLine().trim();
-                filteredEntities = entities.stream()
-                        .filter(entity -> entity.getFraction().equalsIgnoreCase(fraction))
-                        .toList();
-            }
-            case 3 -> {
-                System.out.println("Введите минимальный возраст:");
-                int minAge = getValidIntegerInput();
-                System.out.println("Введите максимальный возраст:");
-                int maxAge = getValidIntegerInput();
-                filteredEntities = entities.stream()
-                        .filter(entity -> entity.getAge() >= minAge && entity.getAge() <= maxAge)
-                        .toList();
-            }
-            case 4 -> {
-                System.out.println("Введите минимальный уровень силы:");
-                int minPower = getValidIntegerInput();
-                System.out.println("Введите максимальный уровень силы:");
-                int maxPower = getValidIntegerInput();
-                filteredEntities = entities.stream()
-                        .filter(entity -> entity.getPowerLevel() >= minPower && entity.getPowerLevel() <= maxPower)
-                        .toList();
-            }
-            case 5 -> {
-                System.out.println("Введите планету:");
-                String planet = new Scanner(System.in).nextLine().trim();
-                filteredEntities = entities.stream()
-                        .filter(entity -> entity.getPlanet().equalsIgnoreCase(planet))
-                        .toList();
-            }
-            case 6 -> {
-                System.out.println("Возвращение в главное меню.");
-                return;
-            }
-            default -> {
-                System.out.println("Неверный выбор. Попробуйте снова.");
-                return;
-            }
-        }
+    // Метод для обновления текстовой области с результатами поиска
+    private static void updateResults(JTextArea resultArea, List<Entity> filteredEntities) {
         if (filteredEntities.isEmpty()) {
-            System.out.println("Нет персонажей, соответствующих выбранным параметрам.");
+            resultArea.setText("Не найдено персонажей, соответствующих критериям.");
         } else {
-            System.out.println("\nНайденные персонажи:");
-            filteredEntities.forEach(System.out::println);
+            StringBuilder resultText = new StringBuilder("Найденные персонажи:\n");
+            filteredEntities.forEach(entity -> resultText.append(entity.toString()).append("\n"));
+            resultArea.setText(resultText.toString());
         }
-
     }
 
-    public static void update(int choice,String name){
+    public static void update(String name) {
         Entity entity = EntityManager.findEntityByName(name);
-        switch (choice) {
-            case 1 -> {
-                System.out.println("Введите новое имя: ");
-                String newName = scanner.nextLine();
-                entity.setName(newName);
-            }
-            case 2 -> {
-                System.out.println("Введите новую фракцию: ");
-                String newFraction = scanner.nextLine();
-                entity.setFraction(newFraction);
-            }
-            case 3 -> {
-                System.out.println("Введите новый возраст: ");
-                int newAge = getValidIntegerInput();
-                entity.setAge(newAge);
-            }
-            case 4 -> {
-                System.out.println("Введите новую планету: ");
-                String newPlanet = scanner.nextLine();
-                entity.setPlanet(newPlanet);
-            }
-            case 5 -> {
-                System.out.println("Введите новый уровень силы: ");
-                int newPowerLevel = getValidIntegerInput();
-                entity.setPowerLevel(newPowerLevel);
-            }
-            case 6 -> {
-                if (entity instanceof Jedi || entity instanceof Sith) {
-                    System.out.println("Введите новый цвет светового меча: ");
-                    String newLightsaberColor = scanner.nextLine();
-                    entity.setLightsaberColor(newLightsaberColor);
-                } else {
-                    System.out.println("Операция не поддерживается для данного типа сущности.");
-                }
-            }
-            case 7 -> {
-                if (entity instanceof Droid) {
-                    System.out.println("Введите новую модель дроида: ");
-                    String newModel = scanner.nextLine();
-                    ((Droid) entity).setModelType(newModel);
-                } else if (entity instanceof Jedi || entity instanceof Sith) {
-                    System.out.println("Введите новый уровень владения силой: ");
-                    int newForceLevel = getValidIntegerInput();
-                    entity.setForceLevel(newForceLevel);
-                } else {
-                    System.out.println("Операция не поддерживается для данного типа сущности.");
-                }
-            }
-            case 8 -> {
-                if (entity instanceof Droid) {
-                    System.out.println("Введите новый уровень заряда батареи: ");
-                    int newBatteryLevel = getValidIntegerInput();
-                    ((Droid) entity).setBatteryLevel(newBatteryLevel);
-                } else if (entity instanceof CloneTrooper) {
-                    System.out.println("Введите новый номер клона: ");
-                    String newCloneNumber = scanner.nextLine();
-                    ((CloneTrooper) entity).setCloneNumber(newCloneNumber);
-                } else if (entity instanceof Jedi) {
-                    System.out.println("Гранд-мастер (true/false): ");
-                    boolean isGrandMaster = Boolean.parseBoolean(scanner.nextLine());
-                    ((Jedi) entity).setIsMaster(isGrandMaster);
-                } else if (entity instanceof Sith) {
-                    System.out.println("Мастер ситхов (true/false): ");
-                    boolean isSithMaster = Boolean.parseBoolean(scanner.nextLine());
-                    ((Sith) entity).setIsMaster(isSithMaster);
-                } else {
-                    System.out.println("Операция не поддерживается для данного типа сущности.");
-                }
-            }
-            default -> System.out.println("Неверный выбор.");
+        if (entity == null) {
+            JOptionPane.showMessageDialog(null, "Сущность не найдена!");
+            return;
         }
+
+        JDialog frame = new JDialog();
+        frame.setTitle("Форма изменения данных");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+        frame.setResizable(false);
+
+        JPanel form = new JPanel();
+        form.setLayout(new GridLayout(9, 2, 10, 10));
+
+        // Поля ввода
+        JTextField nameField = new JTextField(entity.getName());
+        JTextField fractionField = new JTextField(entity.getFraction());
+        JTextField planetField = new JTextField(entity.getPlanet());
+        JTextField ageField = new JTextField(String.valueOf(entity.getAge()));
+        JTextField powerLevelField = new JTextField(String.valueOf(entity.getPowerLevel()));
+
+        // Поля, специфичные для Jedi/Sith
+        JTextField lightsaberColorField = new JTextField(entity instanceof Jedi || entity instanceof Sith ? entity.getLightsaberColor() : "");
+        JTextField forceLevelField = new JTextField(entity instanceof Jedi || entity instanceof Sith ? String.valueOf(entity.getForceLevel()) : "");
+        JCheckBox isMasterCheckBox = new JCheckBox("Гранд-мастер", entity instanceof Jedi && ((Jedi) entity).isMaster());
+
+        // Поля для CloneTrooper и Droid
+        JTextField cloneNumberField = new JTextField(entity instanceof CloneTrooper ? ((CloneTrooper) entity).getCloneNumber() : "");
+        JTextField modelField = new JTextField(entity instanceof Droid ? ((Droid) entity).getModelType() : "");
+        JTextField batteryLevelField = new JTextField(entity instanceof Droid ? String.valueOf(((Droid) entity).getBatteryLevel()) : "");
+
+        JButton submitButton = new JButton("Изменить данные");
+
+        // Добавляем поля на форму
+        form.add(new JLabel("Имя:"));
+        form.add(nameField);
+        form.add(new JLabel("Фракция:"));
+        form.add(fractionField);
+        form.add(new JLabel("Возраст:"));
+        form.add(ageField);
+        form.add(new JLabel("Планета:"));
+        form.add(planetField);
+        form.add(new JLabel("Уровень силы:"));
+        form.add(powerLevelField);
+
+        if (entity instanceof Jedi || entity instanceof Sith) {
+            form.add(new JLabel("Цвет светового меча:"));
+            form.add(lightsaberColorField);
+            form.add(new JLabel("Уровень владения силой:"));
+            form.add(forceLevelField);
+            form.add(new JLabel("Гранд-мастер:"));
+            form.add(isMasterCheckBox);
+        }
+
+        if (entity instanceof CloneTrooper) {
+            form.add(new JLabel("Номер клона:"));
+            form.add(cloneNumberField);
+        }
+
+        if (entity instanceof Droid) {
+            form.add(new JLabel("Модель дроида:"));
+            form.add(modelField);
+            form.add(new JLabel("Уровень заряда:"));
+            form.add(batteryLevelField);
+        }
+
+        form.add(submitButton);
+        frame.add(form, BorderLayout.CENTER);
+
+        // Обработчик кнопки
+        submitButton.addActionListener(e -> {
+            entity.setName(nameField.getText());
+            entity.setFraction(fractionField.getText());
+            entity.setPlanet(planetField.getText());
+            entity.setAge(getValidIntInput(ageField.getText(), "Возраст"));
+            entity.setPowerLevel(getValidIntInput(powerLevelField.getText(), "Уровень силы"));
+
+            if (entity instanceof Jedi jedi) {
+                jedi.setLightsaberColor(lightsaberColorField.getText());
+                jedi.setForceLevel(getValidIntInput(forceLevelField.getText(), "Уровень владения силой"));
+                jedi.setIsMaster(isMasterCheckBox.isSelected());
+            } else if (entity instanceof Sith sith) {
+                sith.setLightsaberColor(lightsaberColorField.getText());
+                sith.setForceLevel(getValidIntInput(forceLevelField.getText(), "Уровень владения силой"));
+                sith.setIsMaster(isMasterCheckBox.isSelected());
+            } else if (entity instanceof CloneTrooper clone) {
+                clone.setCloneNumber(cloneNumberField.getText());
+            } else if (entity instanceof Droid droid) {
+                droid.setModelType(modelField.getText());
+                droid.setBatteryLevel(getValidIntInput(batteryLevelField.getText(), "Уровень заряда"));
+            }
+
+            JOptionPane.showMessageDialog(frame, "Данные успешно обновлены!");
+            frame.dispose();
+        });
+
+        frame.pack();
+        frame.setVisible(true);
     }
-}
+    }
+
 

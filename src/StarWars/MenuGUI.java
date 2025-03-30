@@ -19,24 +19,24 @@ public class MenuGUI {
         frame.setLayout(new BorderLayout()); // Основной макет окна
 
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Вертикальное расположение кнопок**
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Отступ слева**
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Добавляем кнопки
         showAllButton = createButton("Показать всех", e -> showEntitiesTable());
         panel.add(showAllButton);
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createButton("Добавить", e -> EntityManager.addEntity()));
+        panel.add(createButton("Добавить", e -> {EntityManager.addEntity();showEntitiesTable();}));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createButton("Изменить", e -> updateEntityInfo()));
+        panel.add(createButton("Изменить", e -> {updateEntityInfo();showEntitiesTable();}));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createButton("Удалить", e -> deleteEntity()));
+        panel.add(createButton("Удалить", e -> {deleteEntity();showEntitiesTable();}));
         panel.add(Box.createVerticalStrut(10));
         panel.add(createButton("Другие действия", e -> interactWithEntity()));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createButton("Загрузить", e -> loadEntities()));
+        panel.add(createButton("Загрузить", e -> {loadEntities();showEntitiesTable();}));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createButton("Вывести параметры", e -> showEntitiesByParameters()));
+        panel.add(createButton("Вывести параметры", e -> EntityManager.show()));
         panel.add(Box.createVerticalStrut(10));
         panel.add(createButton("Выход", e -> System.exit(0)));
 
@@ -54,16 +54,16 @@ public class MenuGUI {
 
     private JButton createButton(String text, java.awt.event.ActionListener action) {
         JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(200, 50)); // Фиксированный размер кнопки
-        button.setMaximumSize(new Dimension(200, 50)); // Ограничиваем максимальный размер
-        button.setAlignmentX(Component.LEFT_ALIGNMENT); // Выравнивание кнопки по левому краю
+        button.setPreferredSize(new Dimension(200, 50));
+        button.setMaximumSize(new Dimension(200, 50));
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
         button.addActionListener(action);
         return button;
     }
 
     private void updateEntityInfo() {
         String name = JOptionPane.showInputDialog("Введите имя персонажа:");
-        if (name != null) EntityManager.update(1, name);
+        if (name != null) EntityManager.update(name);
     }
 
     private void deleteEntity() {
@@ -81,12 +81,6 @@ public class MenuGUI {
         EntityManager.loadEntitiesFromFile(type != null && !type.isEmpty() ? type : null);
     }
 
-    private void showEntitiesByParameters() {
-        String choice = JOptionPane.showInputDialog("Введите параметр (1-Тип, 2-Фракция, 3-Возраст, 4-Сила, 5-Планета):");
-        if (choice != null) EntityManager.show(Integer.parseInt(choice));
-    }
-
-    // Метод для отображения списка сущностей
     private void showEntitiesTable() {
         List<Entity> entities = EntityManager.getEntities();
 
@@ -115,7 +109,7 @@ public class MenuGUI {
                 Jedi jedi = (Jedi) entity;
                 row[5] = jedi.getLightsaberColor();
                 row[6] = jedi.getForceLevel();
-                row[7] = jedi.isGrandMaster();
+                row[7] = jedi.isMaster();
             } else if (entity instanceof Sith) {
                 Sith sith = (Sith) entity;
                 row[5] = sith.getLightsaberColor();
@@ -147,4 +141,5 @@ public class MenuGUI {
         rightPanel.revalidate();
         rightPanel.repaint();
     }
+    //класс модели таблицы унаследованый от абстракт tadle model
 }
